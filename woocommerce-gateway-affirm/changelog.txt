@@ -1,5 +1,14 @@
 *** WooCommerce Gateway Affirm Changelog ***
 
+= 2.4.4 - 2024-01-08 =
+* Tweak - Published extension to Wordpress.org
+
+= 2.4.3 - 2025-01-08 =
+* Update - Support for Affirm Onboarding with Connect OAuth
+
+= 2.4.2 - 2024-11-08 =
+* Fix - Use total amount for cart-block ALA.
+
 = 2.4.1 - 2024-06-27 =
 * Tweak - Use admin theme color in selectors.
 * Dev - Remove Woo plugin header.

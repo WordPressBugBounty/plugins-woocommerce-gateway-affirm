@@ -10,6 +10,16 @@ use Automattic\WooCommerce\Blocks\Integrations\IntegrationInterface;
  * 
  */
 class WC_Affirm_Blocks_Cart implements IntegrationInterface {
+	
+	/**
+	 * settings
+	 *
+	 * Affirm Blocks settings
+	 *
+	 * @var string
+	 */
+	public $settings;
+	
 	/**
 	 * The name of the integration.
 	 *
@@ -86,7 +96,7 @@ class WC_Affirm_Blocks_Cart implements IntegrationInterface {
 		if ( $this->gateway_cartpage->testmode ) {
 			$affirm_script_url = 'https://sandbox.affirm.com/js/v2/affirm.js';
 		} else {
-			$affirm_script_url = 'https://wwww.affirm.com/js/v2/affirm.js';
+			$affirm_script_url = 'https://www.affirm.com/js/v2/affirm.js';
 		}
 		
 		$site_locale = get_locale();

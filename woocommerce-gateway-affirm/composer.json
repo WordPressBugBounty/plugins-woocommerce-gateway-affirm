@@ -1,0 +1,21 @@
+{
+    "name": "woocommerce/woocommerce-gateway-affirm",
+    "description": "Take credit card payments on your store using Stripe.",
+    "homepage": "https://woo.com/products/woocommerce-gateway-affirm/",
+    "license": "GPL-2.0-or-later",
+    "config": {
+        "platform": {
+            "php": "7.4"
+        },
+        "allow-plugins": {
+            "composer/installers": true
+        }
+    },
+    "require-dev": {
+        "composer/installers": "2.2.0",
+        "wp-cli/wp-cli-bundle": "2.9.0"
+    },
+    "extra": {
+        "installer-disable": true
+    }
+}
