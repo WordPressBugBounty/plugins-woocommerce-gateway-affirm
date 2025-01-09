@@ -1,7 +1,7 @@
 === WooCommerce Affirm Gateway ===
 Author: WooCommerce
 Tags: woocommerce
-Stable tag: 2.4.4
+Stable tag: 2.4.5
 Requires at least: 6.1
 Tested up to: 6.4.2
 Requires PHP: 7.4
@@ -98,12 +98,6 @@ At this time the feature is inactive on stores. The information can only be acce
 3. Here’s how it works
 
 == Changelog ==
-
-= 2.4.4 - 2024-01-08 =
-* Tweak - Published extension to Wordpress.org
-
-= 2.4.3 - 2024-01-08 =
-* Update - Support for Affirm Onboarding with Connect OAuth
 
 = 2.4.1 - 2024-06-27 =
 * Tweak - Use admin theme color in selectors.
