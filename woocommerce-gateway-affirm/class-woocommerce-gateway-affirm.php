@@ -95,6 +95,11 @@ class WooCommerce_Gateway_Affirm {
 			array( $this, 'init_gateway' ),
 			0
 		);
+		// WP-Cron scheduler
+		add_action(
+			'affirm_api_key_check',
+			array( $this, 'api_key_check')
+		);
 
 		// WooCommerce Blocks integration
 		add_action( 
@@ -1614,5 +1619,18 @@ class WooCommerce_Gateway_Affirm {
 		} else {
 			return get_post_type( $order_id );
 		}
+	}
+
+	/**
+	 * Check that the api keys are valid and active
+	 *
+	 * @return void
+	 * @since  2.4.6
+	 */
+	public function api_key_check() {
+		if ($this->get_gateway()->validate_api_keys_active()) {
+			update_option('affirm_us_keys_status', 'approved');
+			wp_clear_scheduled_hook('affirm_api_key_check');
+		};
 	}
 }

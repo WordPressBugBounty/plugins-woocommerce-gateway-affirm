@@ -329,6 +329,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 
 		$this->initFormFields();
 		$this->init_settings();
+		$this->handle_oauth_redirect();
 
 		$this->public_key          = $this->get_option( 'public_key' );
 		$this->private_key         = $this->get_option( 'private_key' );
@@ -386,6 +387,13 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		add_action(
 			'admin_enqueue_scripts',
 			array( $this, 'adminEnqueueScripts' )
+		);
+		
+		add_action(
+			'update_option_woocommerce_' . $this->id . '_settings',
+			array( $this, 'clearPollingOnManualKeyEntry' ),
+			10,
+			3
 		);
 
 		if ( ! $this->isValidForUse() ) {
@@ -1517,6 +1525,17 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 				return;
 			}
 
+			// display banner if API keys are inactive and embedded onboarding
+			if (wp_next_scheduled ('affirm_api_key_check')){
+				echo '<div class="error"><p>' . sprintf(
+					/* translators: 1) HTML anchor open tag 2) HTML anchor closing tag */
+					esc_html__(
+						'Affirm: Your Affirm (US) application is still pending. Your API keys will remain inactive until your application has been approved by Affirm risk\'s team. If approved, Affirm will appear at checkout.'
+					),
+				) . '</p></div>';
+				return;
+			}
+
 			// Check for duplicate keys.
 			if ( $this->public_key === $this->private_key && strlen($this->public_key) > 1 ) {
 				echo '<div class="error"><p>' . esc_html__(
@@ -1574,6 +1593,12 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		}
 
 		if ( empty( $this->private_key ) && empty( $this->private_key_ca ) ) {
+			return false;
+		}
+
+		// We don't poll on CA keys so we cannot disable if CA keys are present
+		if ((empty( $this->public_key_ca ) || empty( $this->private_key_ca )) &&
+			get_option('affirm_us_keys_status') === 'pending' || get_option('affirm_us_keys_status') === 'denied') {
 			return false;
 		}
 
@@ -2637,7 +2662,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		static $banner_displayed = false;
 		$enabled = $this->enabled  === 'yes' ? true : false;
 		if ( !$banner_displayed ) {
-			if ( $this->check_api_key_empty() || !$enabled ) {
+			if (is_ssl() && ($this->check_api_key_empty() || !$enabled)) {
 				?>
 					<div class='error' id='affirm_activation_banner' style='background-color: black;'>
 						<style>
@@ -2658,7 +2683,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 							.affirm_child {
 								display: inline-block;
 								padding: 1rem 1rem;
-								vertical-align: middle;
+								vertical-align: top;
 								width: 45%;
 								color: #ffffff;
 								front-size: 16px
@@ -2676,21 +2701,37 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
                             <div class='affirm_child_img'>
                                 <img style='width:100%; display: inline-block' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_goodies.png' ) ?>' />
                             </div>
-                            <div class='affirm_child_l1'>
-                                <p style='color:#ffffff; font-size:20px; padding-left:16px; font-weight:600'>Launch <img style='height:24px; display: inline-block' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_logo_white.png' ) ?>'/> in just 2 steps</p>
-                                <div class='affirm_child'>
-                                    <h2 style='color: #ffffff; font-weight:700'>1. Apply for Affirm</h2>
-                                    <p>If you haven’t already signed up for Affirm, you must first apply for a merchant account to receive your API keys.</p>
-                                    <a href='https://www.affirm.com/business/partners/woocommerce?utm_source=WooCommerce&utm_medium=partner&utm_campaign=woocommerce_product' target='_blank'><img style='display: inline-block; height: 30px' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_link_out.png' ) ?>' /></a>
-                                </div>
-                                <div class='affirm_child'>
-                                    <h2 style='color: #ffffff; font-weight:700'>2. Enter your Affirm API keys</h2>
-                                    <p>Use the API keys found in your <a style='color: #FFCA61' href='https://www.affirm.com/dashboard/' target='_blank'>Affirm merchant dashboard</a>  for the plugin on the WooCommerce settings page.
-                                    </p>
-                                    <br>
-                                    <a  href='/wp-admin/admin.php?page=wc-settings&tab=checkout&section=affirm'><img style='display: inline-block; height: 30px' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_enter_api_key.png' ) ?>' /></a>
-                                </div>
-                            </div>
+							<?php if ( WC()->countries->get_base_country() === 'US' ) : ?>
+								<div class='affirm_child_l1'>
+									<p style='color:#ffffff; font-size:20px; padding-left:16px; font-weight:600'>Launch <img style='height:24px; display: inline-block' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_logo_white.png' ) ?>'/></p>
+									<div class='affirm_child'>
+										<h2 style='color: #ffffff; font-weight:700'>New to Affirm?</h2>
+										<p>Apply for a merchant account to get started. Once you submit your application, we will fetch your API keys and pull them into your plugin settings page. Please note that Affirm will not be enabled at checkout until your application has been approved.</p>
+										<a href='<?php echo $this->generate_oauth_init_url(); ?>' target='_blank'><img style='display: inline-block; height: 30px' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_link_out.png' ) ?>' /></a>
+									</div>
+									<div class='affirm_child'>
+										<h2 style='color: #ffffff; font-weight:700'>Already have an account?</h2>
+										<p>Log in to your <a style='color: #FFCA61' href='https://www.affirm.com/dashboard/' target='_blank'>Affirm merchant dashboard</a> to find your API keys. Fill in your API key details on the WooCommerce plugin <a style='color: #FFCA61' href='/wp-admin/admin.php?page=wc-settings&tab=checkout&section=affirm' target='_blank'>settings page</a> to enable Affirm at checkout.
+										</p>
+									</div>
+								</div>
+							<?php else: ?>
+								<div class='affirm_child_l1'>
+									<p style='color:#ffffff; font-size:20px; padding-left:16px; font-weight:600'>Launch <img style='height:24px; display: inline-block' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_logo_white.png' ) ?>'/> in just 2 steps</p>
+									<div class='affirm_child'>
+										<h2 style='color: #ffffff; font-weight:700'>1. Apply for Affirm</h2>
+										<p>If you haven’t already signed up for Affirm, you must first apply for a merchant account to receive your API keys.</p>
+										<a href='https://www.affirm.com/business/partners/woocommerce?utm_source=WooCommerce&utm_medium=partner&utm_campaign=woocommerce_product' target='_blank'><img style='display: inline-block; height: 30px' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_link_out.png' ) ?>' /></a>
+									</div>
+									<div class='affirm_child'>
+										<h2 style='color: #ffffff; font-weight:700'>2. Enter your Affirm API keys</h2>
+										<p>Use the API keys found in your <a style='color: #FFCA61' href='https://www.affirm.com/dashboard/' target='_blank'>Affirm merchant dashboard</a>  for the plugin on the WooCommerce settings page.
+										</p>
+										<br>
+										<a  href='/wp-admin/admin.php?page=wc-settings&tab=checkout&section=affirm'><img style='display: inline-block; height: 30px' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_enter_api_key.png' ) ?>' /></a>
+									</div>
+								</div>
+							<?php endif; ?>
 						</div>
 					</div>
 					<script>
@@ -2706,6 +2747,37 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 				$banner_displayed = true;		
 			}
 		}
+	}
+
+	/**
+	 * Helper to create oauth init url
+	 *
+	 * @since  2.4.6
+	 * @return string
+	 */
+	private function generate_oauth_init_url() {
+		$base_url = 'https://api.woocommerce.com/affirm/oauth-init';
+		$nonce = wp_create_nonce();
+		set_transient('oauth_init', $nonce, 6 * HOUR_IN_SECONDS);
+		$curr_user = wp_get_current_user();
+		$query_args = array(
+			'scopes'       		=> 'read_write',
+			'nonce' 			=> $nonce,
+			'expiration_ts' 	=> time() + (15 * 60),
+			'country_code' 		=> self::USA,
+			'return_url' 		=> get_site_url() . '/wp-admin/admin.php?page=wc-settings&tab=checkout&section=affirm/',
+			'first_name'		=> $curr_user->first_name,
+			'last_name'			=> $curr_user->last_name,
+			'street_address' 	=> WC()->countries->get_base_address(),
+			'city'				=> WC()->countries->get_base_city(),
+			'region1_code'		=> WC()->countries->get_base_state(),
+			'zip'				=> WC()->countries->get_base_postcode()
+		);
+		$filtered_query_args = array_filter($query_args, function($value){
+			return !empty($value);
+		});
+		$query_string = http_build_query($filtered_query_args);
+		return "{$base_url}?{$query_string}";
 	}
 
 	/**
@@ -2790,6 +2862,20 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	}
 
 	/**
+	 * When US API keys are updated in settings, we need to handle case where manual key entries are not to be polled
+	 * @return void
+	 * @since  2.4.6
+	 */
+	public function clearPollingOnManualKeyEntry( $old_value, $value, $option ) {
+		if ($old_value['public_key'] !== $value['public_key'] || $old_value['private_key'] !== $value['private_key']) {
+
+			// Manual key entries are not to be polled/wait for active status
+			update_option('affirm_us_keys_status', 'manual');
+			wp_clear_scheduled_hook('affirm_api_key_check');
+		}
+	}
+
+	/**
      * Format the stack traces for the error tracker endpoint
      * @param \Exception $exception
      * @return array
@@ -2809,4 +2895,122 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 
         return $trace;
     }
+
+	public function handle_oauth_redirect() {
+
+		$current_url = home_url(add_query_arg(array()));
+
+		$url_components = parse_url($current_url);
+
+		if (isset($url_components['query'])) {
+			parse_str($url_components['query'], $params);
+
+			if (isset($params['wc_affirm_nonce'])) {
+				if (get_transient('oauth_init') !== $params['wc_affirm_nonce']) {
+					return new WP_Error('Invalid nonce received from Affirm server');
+				}
+				// if nonce matches, make POST request to WooCommerce middleware /affirm/oauth-keys
+				$this->fetch_affirm_oauth_keys($params['wc_affirm_code'], $params['wc_affirm_state']);
+			}
+		}
+	}
+
+	/**
+	 * Poll API keys to see if they are active
+	 * @return boolean
+	 * @since  2.4.6
+	 */
+	public function validate_api_keys_active() {
+		if ( $this->testmode ) {
+			$server = 'https://api.global-sandbox.affirm.com/';
+		} else {
+			$server = 'https://api.global.affirm.com/';
+		}
+		$url = $server . 'api/v1/partnersolutions/platform/woocommerce/connect';
+
+		// We are limiting our scope to USA only right now
+		$country_code = self::USA;
+
+		$options = array(
+			'method'  => 'POST',
+			'headers' => array(
+				'Authorization'   => 'Basic ' . base64_encode(
+					$this->get_key(
+						'public',
+						$country_code
+					) . ':' . $this->get_key(
+						'private',
+						$country_code
+					)
+				),
+				'Content-Type'    => 'application/json',
+				'Country-Code'    => $country_code
+			)
+		);
+
+		$response = wp_safe_remote_post( $url, $options );
+		$status_code = wp_remote_retrieve_response_code($response);
+
+		if ($status_code === 401) {
+			$body = json_decode(wp_remote_retrieve_body($response), true);
+
+			if (isset($body['underwriting_status']) && $body['underwriting_status'] === 'denied') {
+				// Clear keys and schedule if the merchant is denied
+				$this->update_option( 'public_key', '' );
+				$this->update_option( 'private_key', '' );
+				update_option('affirm_us_keys_status', 'denied');
+				wp_clear_scheduled_hook('affirm_api_key_check');
+			}
+		}
+
+		return $status_code === 200;
+
+	}
+
+	public function fetch_affirm_oauth_keys($code, $state)
+	{
+		$url = 'https://api.woocommerce.com/affirm/oauth-keys';
+		$body = array(
+			'code' => $code,
+			'state' => $state
+		);
+
+		$options = array(
+			'method' => 'POST',
+			'headers' => array(
+				'Content-Type' => 'application/json',
+			),
+			'body' => $body
+		);
+
+		if (!empty($body)) {
+			$options['body'] = wp_json_encode($body);
+		}
+
+		$response = wp_safe_remote_post($url, $options);
+
+		if (is_wp_error($response)) {
+			return new WP_Error('Error fetching keys from WooCommerce Connect');
+		}
+
+		delete_transient('oauth_init');
+
+		return $this->save_affirm_keys($response);
+	}
+
+	public function save_affirm_keys($result)
+	{
+		$body = json_decode($result['body']);
+
+		if (!isset($body->public_api_key, $body->private_api_key)) { 
+			return new WP_Error('Invalid credentials received from WooCommerce Connect server');
+		}
+
+		$this->update_option('public_key', $body->public_api_key);
+		$this->update_option('private_key', $body->private_api_key);
+		update_option('affirm_us_keys_status', 'pending');
+		if (! wp_next_scheduled ('affirm_api_key_check')) {
+			wp_schedule_event(time(), 'hourly', 'affirm_api_key_check');
+		}
+	}
 }
