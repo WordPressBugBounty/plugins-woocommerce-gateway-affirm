@@ -1,7 +1,7 @@
 === WooCommerce Affirm Gateway ===
 Author: WooCommerce
 Tags: woocommerce
-Stable tag: 2.4.6
+Stable tag: 2.4.7
 Requires at least: 6.1
 Tested up to: 6.4.2
 Requires PHP: 7.4
@@ -98,6 +98,9 @@ At this time the feature is inactive on stores. The information can only be acce
 3. Here’s how it works
 
 == Changelog ==
+
+= 2.4.7 - 2025-02-06 =
+* Fix - Fixed sandbox key polling
 
 = 2.4.6 - 2025-01-09 =
 * Fix - Support for Affirm Onboarding with Connect OAuth

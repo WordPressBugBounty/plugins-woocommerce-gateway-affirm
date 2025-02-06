@@ -2921,12 +2921,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	 * @since  2.4.6
 	 */
 	public function validate_api_keys_active() {
-		if ( $this->testmode ) {
-			$server = 'https://api.global-sandbox.affirm.com/';
-		} else {
-			$server = 'https://api.global.affirm.com/';
-		}
-		$url = $server . 'api/v1/partnersolutions/platform/woocommerce/connect';
+		$url = 'https://api.global.affirm.com/api/v1/partnersolutions/platform/woocommerce/connect';
 
 		// We are limiting our scope to USA only right now
 		$country_code = self::USA;
