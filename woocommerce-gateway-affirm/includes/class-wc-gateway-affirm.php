@@ -53,6 +53,24 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	public $private_key_ca;
 
 	/**
+	 * public_key GB
+	 *
+	 * Affirm Public Key GB
+	 *
+	 * @var string
+	 */
+	public $public_key_gb;
+
+	/**
+	 * private_key GB
+	 *
+	 * Affirm Private Key GB
+	 *
+	 * @var string
+	 */
+	public $private_key_gb;
+
+	/**
 	 * region
 	 *
 	 * Merchants Region
@@ -250,6 +268,8 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	 */
 	public $log;
 
+	public $countries;
+
 	/**
 	 * Transaction type constants
 	 */
@@ -287,11 +307,12 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	 */
 	const USA = 'USA';
 	const CAN = 'CAN';
+	const GBR = 'GBR';
 
 	/**
 	 * Countries where Affirm is available as a payment option
 	 */
-	const AVAILABLE_COUNTRIES = array( 'US', 'AS', 'GU', 'MP', 'PR', 'VI', 'CA' );
+	const AVAILABLE_COUNTRIES = array( 'US', 'AS', 'GU', 'MP', 'PR', 'VI', 'CA', 'GB' );
 
 	/**
 	 * Error tracker constants
@@ -303,6 +324,9 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	
 	// Max stack frames to send to endpoint
 	const MAX_STACK_FRAMES = 10;
+
+	// allow for easier swapping between prod and stage
+	CONST AFFIRM_URL_DOMAIN = 'affirm';
 
 	/**
 	 * Constructor
@@ -335,6 +359,8 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		$this->private_key         = $this->get_option( 'private_key' );
 		$this->public_key_ca       = $this->get_option( 'public_key_ca' );
 		$this->private_key_ca      = $this->get_option( 'private_key_ca' );
+		$this->public_key_gb       = $this->get_option( 'public_key_gb' );
+		$this->private_key_gb      = $this->get_option( 'private_key_gb' );
 		$this->region              = $this->get_option( 'region' );
 		$this->debug               = $this->get_option( 'debug' ) === 'yes';
 		$this->title               = $this->get_option( 'title' );
@@ -372,6 +398,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 			'yes'
 		) === 'yes';
 		$this->use_site_language   = $this->get_option( 'language' );
+		$this->countries = $this->get_option( 'countries', self::AVAILABLE_COUNTRIES );
 		add_action(
 			'woocommerce_update_options_payment_gateways_' . $this->id,
 			array( $this, 'process_admin_options' )
@@ -1041,6 +1068,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 				'options'     => array(
 					'USA' => __( 'US', 'woocommerce-gateway-affirm' ),
 					'CAN' => __( 'CA', 'woocommerce-gateway-affirm' ),
+					'GBR'  => __( 'GB', 'woocommerce-gateway-affirm' ),
 				),
 			),
 			'public_key'          => array(
@@ -1115,6 +1143,44 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 					'<a target="_blank" href="https://www.affirm.ca/dashboard/" class="woocommerce_affirm_merchant_dashboard_link_ca">',
 					'</a>',
 					'<a target="_blank" href="https://sandbox.affirm.ca/dashboard/" class="woocommerce_affirm_merchant_dashboard_link_ca">',
+					'</a>'
+				),
+				'default'     => '',
+			),
+			'public_key_gb'       => array(
+				'title'       => __(
+					'Public API Key',
+					'woocommerce-gateway-affirm'
+				),
+				'type'        => 'text',
+				'description' => sprintf(
+				/* translators: 1: html starting code 2: html end code */
+					__(
+						'This is the public key assigned by Affirm and available from your %1$smerchant dashboard%2$s .',
+						'woocommerce-gateway-affirm'
+					),
+					'<a target="_blank" href="https://uk.affirm.com/dashboard/" class="woocommerce_affirm_merchant_dashboard_link_gb">',
+					'</a>',
+					'<a target="_blank" href="https://sandbox.uk.affirm.com/dashboard/" class="woocommerce_affirm_merchant_dashboard_link_gb">',
+					'</a>'
+				),
+				'default'     => '',
+			),
+			'private_key_gb'      => array(
+				'title'       => __(
+					'Private API Key',
+					'woocommerce-gateway-affirm'
+				),
+				'type'        => 'text',
+				'description' => sprintf(
+				/* translators: 1: html starting code 2: html end code */
+					__(
+						'This is the private key assigned by Affirm and available from your %1$smerchant dashboard%2$s.',
+						'woocommerce-gateway-affirm'
+					),
+					'<a target="_blank" href="https://uk.affirm.com/dashboard/" class="woocommerce_affirm_merchant_dashboard_link_gb">',
+					'</a>',
+					'<a target="_blank" href="https://sandbox.uk.affirm.com/dashboard/" class="woocommerce_affirm_merchant_dashboard_link_gb">',
 					'</a>'
 				),
 				'default'     => '',
@@ -1548,7 +1614,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 			// Check Currency.
 			if ( ! $this->supported_currency() ) {
 				echo '<div class="error"><p>' . esc_html__(
-					'Affirm: Affirm only supports USD or CAD for currency.',
+					'Affirm: Affirm only supports USD, CAD, or GBP for currency.',
 					'woocommerce-gateway-affirm'
 				) . '</p></div>';
 				return;
@@ -1588,18 +1654,22 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 			return false;
 		}
 
-		if ( empty( $this->public_key ) && empty( $this->public_key_ca )  ) {
+		if ( empty( $this->public_key ) && empty( $this->public_key_ca ) && empty( $this->public_key_gb )  ) {
 			return false;
 		}
 
-		if ( empty( $this->private_key ) && empty( $this->private_key_ca ) ) {
+		if ( empty( $this->private_key ) && empty( $this->private_key_ca ) && empty( $this->private_key_gb ) ) {
 			return false;
 		}
 
-		// We don't poll on CA keys so we cannot disable if CA keys are present
-		if ((empty( $this->public_key_ca ) || empty( $this->private_key_ca )) &&
-			get_option('affirm_us_keys_status') === 'pending' || get_option('affirm_us_keys_status') === 'denied') {
-			return false;
+		$ca_keys_present = ($this->public_key_ca) && ($this->private_key_ca);
+		$gb_keys_present = ($this->public_key_gb) && ($this->private_key_gb);
+
+		// We don't poll on CA and UK keys so we cannot disable if CA or UK keys are present
+		if ( !($ca_keys_present || $gb_keys_present) ) {
+			if (get_option('affirm_us_keys_status') === 'pending' || get_option('affirm_us_keys_status') === 'denied' ) {
+				return false;	
+			}
 		}
 
 		return true;
@@ -1637,9 +1707,9 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		}
 
 		if ( $this->testmode ) {
-			$server = 'sandbox.affirm.com';
+			$server = 'sandbox.'.self::AFFIRM_URL_DOMAIN.'.com';
 		} else {
-			$server = 'affirm.com';
+			$server = self::AFFIRM_URL_DOMAIN.'.com';
 		}
 
 		return 'https://' .
@@ -1649,7 +1719,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	}
 
 	/**
-	 * Affirm only supports US customers
+	 * Affirm only supports US, CA, and UK customers
 	 *
 	 * @return  bool
 	 * @since   1.0.0
@@ -1666,7 +1736,6 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 				$total = WC()->cart->cart_contents_total;
 			}
 		}
-
 		$is_available = ( 'yes' === $this->enabled ) ? true : false;
 		if ( ! WC()->customer ) {
 			return false;
@@ -1683,7 +1752,6 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		$max     = $this->get_option( 'max' ) ?: 300000;
 
 		$available_country = $this::AVAILABLE_COUNTRIES;
-
 		if ( ! in_array( $country, $available_country, true ) && '' !== $country ) {
 			if ( is_checkout() ) {
 				$this->log(
@@ -2058,7 +2126,6 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		if ( ! $this->isCheckoutAutoPostPage() ) {
 			return;
 		}
-
 		$order = $this->validateOrderFromRequest();
 		if ( false === $order ) {
 			return;
@@ -2069,8 +2136,6 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		if ( $this->notValidCheckoutNonce( $order_id, $nonce ) ) {
 			return;
 		}
-
-
 
 		// We made it this far,
 		// let's fire up affirm and embed the order data in an affirm friendly way.
@@ -2567,6 +2632,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		$c_map = array(
 			'USD' => array( 'US', 'USA' ),
 			'CAD' => array( 'CA', 'CAN' ),
+			'GBP' => array( 'GB', 'GBR')
 		);
 
 		return $c_map[ $currency_code ];
@@ -2576,7 +2642,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	 * Check supported currency
 	 */
 	public function supported_currency() {
-		$currency = array( 'USD', 'CAD' );
+		$currency = array( 'USD', 'CAD', 'GBP' );
 		if ( in_array( get_woocommerce_currency(), $currency, true ) ) {
 			return true;
 		}
@@ -2594,6 +2660,8 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	public function get_key( $type, $country_code ) {
 		if ( self::CAN === $country_code ) {
 			return $this->get_option( $type . '_key_ca' );
+		} else if (self::GBR === $country_code) {
+			return $this->get_option( $type . '_key_gb' );
 		} else {
 			return $this->get_option( $type . '_key' );
 		}
@@ -2629,8 +2697,10 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		$us_private = $this->private_key;
 		$ca_public = $this->public_key_ca;
 		$ca_private =  $this->private_key_ca;
+		$gb_public = $this->public_key_gb;
+		$gb_private =  $this->private_key_gb;
 
-		if ( empty($us_public) && empty($us_private) && empty($ca_public) && empty($ca_private)  ) {
+		if ( empty($us_public) && empty($us_private) && empty($ca_public) && empty($ca_private) && empty($gb_public) && empty($gb_private)  ) {
 			return true;
 		}
 		
@@ -2642,6 +2712,12 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 
 		if ( (isset($ca_public) || isset($ca_private) ) && strlen($ca_public) > 1 || strlen($ca_private) > 1 ) {
 			if( empty($ca_public) || empty($ca_private) ) {
+				return true;
+			}
+		}
+
+		if ( (isset($gb_public) || isset($gb_private) ) && strlen($gb_public) > 1 || strlen($gb_private) > 1 ) {
+			if( empty($gb_public) || empty($gb_private) ) {
 				return true;
 			}
 		}
@@ -2800,9 +2876,9 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		$error_message=''
 	) {
 		if ( $this->testmode ) {
-			$server = 'https://api.global-sandbox.affirm.com/';
+			$server = 'https://api.global-sandbox.'.self::AFFIRM_URL_DOMAIN.'.com/';
 		} else {
-			$server = 'https://api.global.affirm.com/';
+			$server = 'https://api.global.'.self::AFFIRM_URL_DOMAIN.'.com/';
 		}
 		$url = $server . 'api/v1/partnersolutions/platform/tracker';
 

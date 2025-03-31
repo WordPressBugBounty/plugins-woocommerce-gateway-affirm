@@ -16,8 +16,7 @@ const max = decodeEntities( settings.max ) * 100 || 3000000;
 /**
  *  Countries where Affirm is available as a payment option
  */
-const available_countries = decodeEntities( settings.countries );
-
+const available_countries = decodeEntities( settings.countries ) 
 
 /**
  * Affirm icon for the payment option
@@ -64,7 +63,6 @@ const Label = ( props ) => {
  */
 
  const canMakePayment = ( { cartTotals, billingAddress } ) => {
-
 	let total = Number(cartTotals.total_price) || 0;
 	if (min > total) {
 		// Order total is less than min amount

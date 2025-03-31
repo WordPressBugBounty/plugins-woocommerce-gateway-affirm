@@ -361,9 +361,9 @@ class WC_Gateway_Affirm_Charge_API {
 	private function post_authenticated_json_request( $route, $body = false, $country_code ) {
 
 		if ( $this->gateway->testmode ) {
-			$server = 'https://api.global-sandbox.affirm.com/';
+			$server = 'https://api.global-sandbox.'.WC_Gateway_Affirm::AFFIRM_URL_DOMAIN.'.com/';
 		} else {
-			$server = 'https://api.global.affirm.com/';
+			$server = 'https://api.global.'.WC_Gateway_Affirm::AFFIRM_URL_DOMAIN.'.com/';
 		}
 
 		$url                       = $server . $route;
@@ -405,9 +405,9 @@ class WC_Gateway_Affirm_Charge_API {
 	 */
 	private function get_authenticated_json_request( $route, $country_code ) {
 		if ( $this->gateway->testmode ) {
-			$server = 'https://api.global-sandbox.affirm.com/';
+			$server = 'https://api.global-sandbox.'.WC_Gateway_Affirm::AFFIRM_URL_DOMAIN.'.com/';
 		} else {
-			$server = 'https://api.global.affirm.com/';
+			$server = 'https://api.global.'.WC_Gateway_Affirm::AFFIRM_URL_DOMAIN.'.com/';
 		}
 
 		$url = $server . $route;

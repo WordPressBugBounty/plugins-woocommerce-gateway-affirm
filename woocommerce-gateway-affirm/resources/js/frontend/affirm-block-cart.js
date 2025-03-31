@@ -14,6 +14,7 @@ const learnmore = decodeEntities( settings.learnmore);
 const script_url= decodeEntities( settings.script_url);
 const public_key = decodeEntities( settings.public_key);
 const public_key_ca = decodeEntities( settings.public_key_ca);
+const public_key_gb = decodeEntities( settings.public_key_gb);
 const enabled_gateway = decodeEntities( settings.enabled);
 const valid_use = decodeEntities( settings.valid_use);
 const cart_ala = decodeEntities( settings.cart_ala);
@@ -38,7 +39,8 @@ let locale = '';
 function get_country_by_currency(currency_code) {
 	const c_map = { 
 		'USD': ['US', 'USA'],
-		'CAD': ['CA', 'CAN']
+		'CAD': ['CA', 'CAN'],
+		'GBP': ['GB', 'GBR'],
 	};
 	return c_map[ currency_code ];
 }
@@ -53,6 +55,8 @@ function get_country_by_currency(currency_code) {
 function get_public_key( country_code ) {
 	if ( 'CAN' === country_code ) {
 		return public_key_ca;
+	} else if ('GBR' === country_code) {
+		return public_key_gb;
 	} else {
 		return public_key;
 	}
@@ -67,17 +71,21 @@ function get_public_key( country_code ) {
 function get_locale( currency ) {
 	let locale = 'en_US';
 	if ( 'USD' !== currency ) {
-		if ( 'site_language' === language_selector ) {
-			if ( site_locale === locale ) {
-				locale = 'en_CA';
-			}
-			
-		// if language_selector = 'browser_language'
-		} else {
-			let language = browserLocaleLanguage();
-			site_locale = language + '_' + country_code[0];
-			if ( site_locale === locale ) {
-				locale = 'en_CA';
+		if ('GBP' === currency){
+			locale = 'en_GB';
+		} else {	
+			if ( 'site_language' === language_selector ) {
+				if ( site_locale === locale ) {
+					locale = 'en_CA';
+				}
+				
+			// if language_selector = 'browser_language'
+			} else {
+				let language = browserLocaleLanguage();
+				site_locale = language + '_' + country_code[0];
+				if ( site_locale === locale ) {
+					locale = 'en_CA';
+				}
 			}
 		}
 	}

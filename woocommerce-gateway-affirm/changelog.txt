@@ -1,4 +1,6 @@
 *** WooCommerce Gateway Affirm Changelog ***
+= 3.0.0 - 2025-01-14 =
+* Update - Support for Affirm in UK/GB
 
 = 2.4.7 - 2025-02-06 =
 * Fix - Fixed sandbox key polling

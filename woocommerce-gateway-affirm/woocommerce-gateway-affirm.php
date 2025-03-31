@@ -5,13 +5,13 @@
  * Description: Receive payments using the Affirm payments provider.
  * Author: WooCommerce
  * Author URI: https://woocommerce.com/
- * Version: 2.4.7
+ * Version: 3.0.0
  * Requires Plugins: woocommerce
  * Requires at least: 6.1
  * Tested up to: 6.4.1
  * Requires PHP: 7.4
  * WC requires at least: 8.0
- * WC tested up to: 8.5.0
+ * WC tested up to: 9.7.1
  * Text Domain: woocommerce-gateway-affirm
  * Domain Path: /languages/
  * License: GPL-3.0-or-later
@@ -43,7 +43,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
-define( 'WC_GATEWAY_AFFIRM_VERSION', '2.4.7' ); // WRCS: DEFINED_VERSION.
+define( 'WC_GATEWAY_AFFIRM_VERSION', '3.0.0' ); // WRCS: DEFINED_VERSION.
 define( 'WC_GATEWAY_AFFIRM_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 
 /**

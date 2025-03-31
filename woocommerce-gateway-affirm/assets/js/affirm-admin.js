@@ -35,7 +35,8 @@ jQuery( document ).ready(
 		// Minimize fields if public API key is filled.
 		var affirm_public_key    = $( '#woocommerce_affirm_public_key' ).val();
 		var affirm_public_key_ca = $( '#woocommerce_affirm_public_key_ca' ).val();
-		if (affirm_public_key == '' || affirm_public_key_ca == '') {
+		var affirm_public_key_gb = $( '#woocommerce_affirm_public_key_gb' ).val();
+		if (affirm_public_key == '' || affirm_public_key_ca == '' || affirm_public_key_gb == '') {
 			$( '#woocommerce_affirm_account_settings' ).val( 'expand' ).change()
 			$( '#woocommerce_affirm_ala_settings' ).val( 'expand' ).change()
 		} else {
@@ -126,9 +127,20 @@ jQuery( document ).ready(
 		if ($( '#woocommerce_affirm_region' ).val() === 'USA') {
 			$( '[for=woocommerce_affirm_public_key_ca]' ).parent().parent().hide()
 			$( '[for=woocommerce_affirm_private_key_ca]' ).parent().parent().hide()
+			$( '[for=woocommerce_affirm_public_key_gb]' ).parent().parent().hide()
+			$( '[for=woocommerce_affirm_private_key_gb]' ).parent().parent().hide()
+			$( '[for=woocommerce_affirm_language]' ).parent().parent().hide()
+		} else if ($( '#woocommerce_affirm_region' ).val() === 'CAN')  {
+			$( '[for=woocommerce_affirm_public_key]' ).parent().parent().hide()
+			$( '[for=woocommerce_affirm_private_key]' ).parent().parent().hide()
+			$( '[for=woocommerce_affirm_public_key_gb]' ).parent().parent().hide()
+			$( '[for=woocommerce_affirm_private_key_gb]' ).parent().parent().hide()
 		} else {
 			$( '[for=woocommerce_affirm_public_key]' ).parent().parent().hide()
 			$( '[for=woocommerce_affirm_private_key]' ).parent().parent().hide()
+			$( '[for=woocommerce_affirm_public_key_ca]' ).parent().parent().hide()
+			$( '[for=woocommerce_affirm_private_key_ca]' ).parent().parent().hide()
+			$( '[for=woocommerce_affirm_language]' ).parent().parent().hide()
 		}
 
 		$( '#woocommerce_affirm_region' ).change(
@@ -139,12 +151,24 @@ jQuery( document ).ready(
 					$( '[for=woocommerce_affirm_language]' ).parent().parent().hide()
 					$( '[for=woocommerce_affirm_public_key]' ).parent().parent().show()
 					$( '[for=woocommerce_affirm_private_key]' ).parent().parent().show()
-				} else {
+					$( '[for=woocommerce_affirm_public_key_gb]' ).parent().parent().hide()
+					$( '[for=woocommerce_affirm_private_key_gb]' ).parent().parent().hide()
+				} else if ($( '#woocommerce_affirm_region' ).val() === 'CAN') {
 					$( '[for=woocommerce_affirm_public_key_ca]' ).parent().parent().show()
 					$( '[for=woocommerce_affirm_private_key_ca]' ).parent().parent().show()
 					$( '[for=woocommerce_affirm_language]' ).parent().parent().show()
 					$( '[for=woocommerce_affirm_public_key]' ).parent().parent().hide()
 					$( '[for=woocommerce_affirm_private_key]' ).parent().parent().hide()
+					$( '[for=woocommerce_affirm_public_key_gb]' ).parent().parent().hide()
+					$( '[for=woocommerce_affirm_private_key_gb]' ).parent().parent().hide()
+				} else {
+					$( '[for=woocommerce_affirm_public_key_ca]' ).parent().parent().hide()
+					$( '[for=woocommerce_affirm_private_key_ca]' ).parent().parent().hide()
+					$( '[for=woocommerce_affirm_language]' ).parent().parent().hide()
+					$( '[for=woocommerce_affirm_public_key]' ).parent().parent().hide()
+					$( '[for=woocommerce_affirm_private_key]' ).parent().parent().hide()
+					$( '[for=woocommerce_affirm_public_key_gb]' ).parent().parent().show()
+					$( '[for=woocommerce_affirm_private_key_gb]' ).parent().parent().show()
 				}
 			}
 		)

@@ -1,12 +1,12 @@
 === WooCommerce Affirm Gateway ===
 Author: WooCommerce
 Tags: woocommerce
-Stable tag: 2.4.7
+Stable tag: 3.0.0
 Requires at least: 6.1
-Tested up to: 6.4.2
+Tested up to: 6.7.2
 Requires PHP: 7.4
 Requires WooCommerce at least: 8.0
-Tested WooCommerce up to: 8.5.0
+Tested WooCommerce up to: 9.7.1
 License: GPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 

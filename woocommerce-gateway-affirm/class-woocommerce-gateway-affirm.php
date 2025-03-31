@@ -25,7 +25,6 @@ use Automattic\WooCommerce\Utilities\OrderUtil;
  */
 class WooCommerce_Gateway_Affirm {
 
-
 	/**
 	 * The reference the *Singleton* instance of this class.
 	 *
@@ -322,12 +321,13 @@ class WooCommerce_Gateway_Affirm {
 	 * @return array Order actions.
 	 */
 	public function possibly_add_capture_to_order_actions( $actions ) {
-		if ( ! isset( $_REQUEST['id'] ) ) {
+		if ( ! isset( $_REQUEST['post'] ) && ! isset( $_REQUEST['id'] ) ) {
 			return $actions;
 		}
+
 		$order = wc_get_order(
 			wp_kses(
-				wp_unslash( $_REQUEST['id'] ),
+				wp_unslash( $_REQUEST['post'] ? $_REQUEST['post'] : $_REQUEST['id']  ),
 				array()
 			)
 		);
@@ -340,7 +340,6 @@ class WooCommerce_Gateway_Affirm {
 			'Capture Charge (Full amount)',
 			'woocommerce-gateway-affirm'
 		);
-
 		return $actions;
 	}
 
@@ -875,7 +874,6 @@ class WooCommerce_Gateway_Affirm {
 		if ( ! $this->get_gateway()->isValidForUse() ) {
 			return;
 		}
-
 		if ( ! $this->get_gateway()->enabled ) {
 			return;
 		}
@@ -887,49 +885,54 @@ class WooCommerce_Gateway_Affirm {
 		$testmode     = $this->get_gateway()->testmode;
 
 		if ( $testmode ) {
-			$script_url = 'https://sandbox.affirm.com/js/v2/affirm.js';
+			$script_url = 'https://sandbox.'.WC_Gateway_Affirm::AFFIRM_URL_DOMAIN.'.com/js/v2/affirm.js';
 		} else {
-			$script_url = 'https://www.affirm.com/js/v2/affirm.js';
+			$script_url = 'https://www.'.WC_Gateway_Affirm::AFFIRM_URL_DOMAIN.'.com/js/v2/affirm.js';
 		}
+
 		$language_selector = $this->get_gateway()->use_site_language;
 		$locale            = 'en_US';
 		if ( 'USD' !== $currency ) {
-			$my_current_lang = apply_filters( 'wpml_current_language', NULL );
-			if ($my_current_lang) {
-				if ( $my_current_lang === $locale ) {
-					$locale = 'en_CA';
-				}
-				elseif ($my_current_lang == 'fr') {
-					$locale = 'fr_CA';
-				}
-				else {
-					$locale = 'en_CA';	
-				}
-			}
-			elseif ( 'site_language' === $language_selector ) {
-				$site_locale = get_locale();
-				if ( $site_locale === $locale ) {
-					$locale = 'en_CA';
-				} else {
-					$locale = $site_locale;
-				}
+			if ('GBP' === $currency) {
+				$locale = 'en_GB';
 			} else {
-				$language = substr(
-					wp_kses(
-						wp_unslash(
-							// phpcs:ignore
-							$_SERVER['HTTP_ACCEPT_LANGUAGE']
-						),
-						array()
-					),
-					0,
-					2
-				);
-				$site_locale = $language . '_' . $country_code[0];
-				if ( $site_locale === $locale ) {
-					$locale = 'en_CA';
+				$my_current_lang = apply_filters( 'wpml_current_language', NULL );
+				if ($my_current_lang) {
+					if ( $my_current_lang === $locale ) {
+						$locale = 'en_CA';
+					}
+					elseif ($my_current_lang == 'fr') {
+						$locale = 'fr_CA';
+					}
+					else {
+						$locale = 'en_CA';	
+					}
+				}
+				elseif ( 'site_language' === $language_selector ) {
+					$site_locale = get_locale();
+					if ( $site_locale === $locale ) {
+						$locale = 'en_CA';
+					} else {
+						$locale = $site_locale;
+					}
 				} else {
-					$locale = $site_locale;	
+					$language = substr(
+						wp_kses(
+							wp_unslash(
+								// phpcs:ignore
+								$_SERVER['HTTP_ACCEPT_LANGUAGE']
+							),
+							array()
+						),
+						0,
+						2
+					);
+					$site_locale = $language . '_' . $country_code[0];
+					if ( $site_locale === $locale ) {
+						$locale = 'en_CA';
+					} else {
+						$locale = $site_locale;	
+					}
 				}
 			}
 		}
@@ -1543,7 +1546,7 @@ class WooCommerce_Gateway_Affirm {
 			$currency
 		);
 
-		$global_country = array( 'CAN' );
+		$global_country = array( 'CAN' , "GBR" );
 
 		if ( in_array(
 			$country_code[1],

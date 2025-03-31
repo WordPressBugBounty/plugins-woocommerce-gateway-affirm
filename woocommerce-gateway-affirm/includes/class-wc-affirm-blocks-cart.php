@@ -94,9 +94,9 @@ class WC_Affirm_Blocks_Cart implements IntegrationInterface {
 	public function get_script_data() {
 		
 		if ( $this->gateway_cartpage->testmode ) {
-			$affirm_script_url = 'https://sandbox.affirm.com/js/v2/affirm.js';
+			$affirm_script_url = 'https://sandbox.'.WC_Gateway_Affirm::AFFIRM_URL_DOMAIN.'.com/js/v2/affirm.js';
 		} else {
-			$affirm_script_url = 'https://www.affirm.com/js/v2/affirm.js';
+			$affirm_script_url = 'https://www.'.WC_Gateway_Affirm::AFFIRM_URL_DOMAIN.'.com/js/v2/affirm.js';
 		}
 		
 		$site_locale = get_locale();
@@ -105,6 +105,7 @@ class WC_Affirm_Blocks_Cart implements IntegrationInterface {
 			'affirmColor' => $this->gateway_cartpage->affirm_color,
 			'public_key' => $this->gateway_cartpage->public_key,
 			'public_key_ca' => $this->gateway_cartpage->public_key_ca,
+			'public_key_gb' => $this->gateway_cartpage->public_key_gb,
 			'script_url' => $affirm_script_url,
 			'learnmore' => $this->gateway_cartpage->show_learnmore,
 			'enabled' => ( $this->settings['enabled'] === 'yes') ? true : false,
