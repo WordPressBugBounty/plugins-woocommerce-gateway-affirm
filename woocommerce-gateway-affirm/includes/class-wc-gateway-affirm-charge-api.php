@@ -221,7 +221,7 @@ class WC_Gateway_Affirm_Charge_API {
 
 		if ( 409 === $response_response['code'] && ! is_null( $amount_in_cents ) ) {
 			$_message = 'Charges on this instrument cannot be captured for an amount unequal to authorization hold amount (Status Code 409)';
-			throw new Exception( $_message );
+			throw new Exception( esc_textarea($_message ) );
 		} elseif ( 200 !== $response_response['code'] ) {
 			return false;
 		}
@@ -356,7 +356,7 @@ class WC_Gateway_Affirm_Charge_API {
 	 * @param string $country_code country code.
 	 *
 	 * @since  1.0.0
-	 * @return string
+	 * @return array
 	 */
 	private function post_authenticated_json_request( $route, $body = false, $country_code ) {
 
