@@ -1,7 +1,7 @@
-=== WooCommerce Affirm Gateway ===
-Author: WooCommerce
-Tags: woocommerce
-Stable tag: 3.0.2
+=== WooCommerce Gateway Affirm ===
+Contributors: Affirm
+Tags: Buy now pay later, Payments, WooCommerce extensions
+Stable tag: 3.0.3
 Requires at least: 6.1
 Tested up to: 6.7.2
 Requires PHP: 7.4
@@ -10,103 +10,90 @@ Tested WooCommerce up to: 9.7.1
 License: GPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-The Affirm payment gateway lets your store accept monthly payments for purchases.
+Affirm Payments for WooCommerce: Buy now, pay later for your business—but smarter. Increase conversions and AOV by offering shoppers flexible payment plans from Affirm.
 
 == Description ==
 
-Affirm is the top-rated pay-over-time solution offering Pay in 4 for everyday purchases or monthly installments for higher-ticket items.
+= How to get started =
 
-= Flexible payments help shoppers say yes. =
-Affirm’s tailored Buy Now Pay Later programs remove price as a barrier, turning browsers into buyers, increasing average order value, and expanding your customer base.
+<ol>
+  <li>Download and install the Affirm Payments extension for WooCommerce.</li>
+  <li>Submit your application for an Affirm merchant account.
+    <ol>
+      <li><strong>US merchants</strong>: Head to your WooCommerce payment settings to apply.</li>
+      <li><strong>UK merchants</strong>: Apply at <a href="https://info.affirm.com/woocommerce/uk">info.affirm.com/woocommerce/uk</a></li>
+      <li><strong>Canada merchants</strong>: Apply at <a href="https://info.affirm.com/woocommerce/ca">info.affirm.com/woocommerce/ca</a>.</li>
+    </ol>
+  </li>
+  <li>Once your application is approved, you’ll receive a confirmation email from Affirm and your API keys will go live.</li>
+</ol>
 
-Affirm is modernizing consumer credit and changing the way people shop. We partner with 250k retailers to give our network of over 16 million users the flexibility to buy what they want today and make simple payments over time.
+Fast-track your revenue goals and capture every possible sale by offering customers a smarter way to pay over time, with no hidden fees or surprises.
 
-Our transparent terms (no fees, no compounding interest) boost customer satisfaction and result in higher conversion rates and repeat purchases for merchants.
+= Business benefits =
+**Customized solutions**
+Choose what’s best for your business. Allow customers to pay for their purchase interest-free in 30 days, in 4 interest-free payments every 2 weeks, or in longer installments up to 36 months. Affirm supports cart values up to $30,000.
 
-= Say yes to more =
+**Seamless transactions**
+Affirm pays you for each purchase up front, and provides a seamless experience for shoppers to manage their payments through the Affirm app.
 
-Go live in no time
-We’ll guide you through our straightforward integration in an hour or less.
+**Accelerate customer acquisition**
+Affirm provides access to a powerful network of high-LTV shoppers who have the purchasing power to transact with your business.
 
-Market Affirm with ease
-Our toolkit makes it easy to implement best-in-class Affirm marketing across all your channels.
+= Shopper benefits =
+**Personalized terms**
+Affirm’s BNPL terms are tailored to each purchase and provide customers with the flexibility to choose the payment plan that best suits their individual needs and budget.
 
-Drive conversion and AOV
-Empower more shoppers to buy exactly what they want, when they want it.
+**Complete transparency**
+From no late fees to clear payment plans, Affirm’s commitment to transparency can help boost customer satisfaction to keep them coming back for more.
 
-Maximize your revenue
-Capture more conversions with the right terms that will perform well for your particular business.
+**The power to say yes**
+Affirm’s pay-over-time solutions remove price as a barrier, giving your eligible customers more spending power and a convenient way to say yes to the things they love—without giving up financial peace of mind.
 
-Approve more customers
-Our machine-learning based underwriting approves 20% more customers than our competitors, on average. We approve order values from $50 to $30,000.
-
-= How to Get Started =
-
-1. Sign up for a merchant account with Affirm.
-2. Download the Affirm-WooCommerce extension.
-3. Install Affirm on your WooCommerce store.
-4. Enter your API details at WooCommerce > Settings > Payments > Affirm.
-
-See [https://woocommerce.com/document/woocommerce-gateway-affirm/](https://woocommerce.com/document/woocommerce-gateway-affirm/) for full documentation.
-
-== Installation ==
-
-= Automatic installation =
-
-Automatic installation is the easiest option as WordPress handles the file transfers itself and you don’t need to leave your web browser. To
-automatically install WooCommerce Gateway Affirm, log in to your WordPress dashboard, navigate to the Plugins menu, and click **Add New**.
-
-In the search field type "WooCommerce Gateway Affirm" and click **Search Plugins**. Once you've found our plugin you can install it by clicking **Install Now**, as well as view details about it such as the point release, rating, and description.
-
-= Manual installation =
-
-The manual installation method involves downloading our plugin and uploading it to your web server via your favorite FTP application. The WordPress codex contains [instructions on how to do this here](http://codex.wordpress.org/Managing_Plugins#Manual_Plugin_Installation).
-
-= Updating =
-
-Automatic updates should work like a charm; as always though, ensure you backup your site just in case.
-
-== Frequently Asked Questions ==
-
-= Affirm is not showing. =
-Confirm that:
-
-- Your site’s currency is set to USD. Go to: WooCommerce > Settings > General > Currency.
-- Customers have a U.S.-based billing address to use Affirm.
-- SSL is enabled.
-- Your site is in Live (not Test) mode.
-
-= Nothing happens when customer attempts to pay with Affirm. =
-This error may be caused by non-standard/poorly coded themes and JavaScript (JS) issues. Common issues include:
-
-- JavaScript errors on checkout page – To view the error, open your browser error console (in Chrome: View > developer > JavaScript console) and look for red errors. This should indicate where the error is located and lead you to the problem, e.g., Loading jQuery incorrectly
-- Failing to load scripts – Affirm loads JavaScript which it needs to function. If these are not loaded, you will see errors. Most common reasons are:
-  - Theme is missing wp_head() or wp_footer() calls.
-  - Old overridden template files from WooCommerce inside your theme.
-  - Loading headers/footers in a non-standard way. WooCommerce uses get_header()’s get_header action to init the checkout and load scripts. If you are not using get_header() you either need to do so, or you need to trigger the get_header action manually using: do_action( ‘get_header ); in your custom header loader.
-
-= Is it possible to override templates on the Affirm pages? =
-No. These are fixed/static pages from Affirm.
-
-= Why should the Enhanced Analytics box be unticked? =
-At this time the feature is inactive on stores. The information can only be accessed by an Affirm representative.
 
 == Screenshots ==
 
-1. Our transparent terms (no fees, no compounding interest) boost customer satisfaction and result in higher conversion rates and repeat purchases for merchants.
+1. WooCommerce-Banner
 2. Capture more conversions with the right terms that will perform well for your particular business
 3. Here’s how it works
+4. Business leaders credit Affirm with boosting approvals, increasing sales, improving customer satisfaction, and enhancing customer acquisition.
+5. LogoWall
 
-== Changelog ==
+== Subscription includes ==
 
-= 2.4.7 - 2025-02-06 =
-* Fix - Fixed sandbox key polling
+* Free updates
+* Free customer support: Our Support Service includes assistance with product installations, configuration, and use. [See support policy](https://woocommerce.com/support-policy/)
 
-= 2.4.6 - 2025-01-09 =
-* Fix - Support for Affirm Onboarding with Connect OAuth
+== Extension Information ==
+* PHP version required: 7.4
+* Tested with WordPress: 6.4.1
+* Tested with WooCommerce: 8.5.0
 
-= 2.4.1 - 2024-06-27 =
-* Tweak - Use admin theme color in selectors.
-* Dev - Remove Woo plugin header.
+== Compatibility ==
 
-[See changelog for all versions](https://raw.githubusercontent.com/woocommerce/woocommerce-gateway-affirm/trunk/changelog.txt).
+* Cart & checkout blocks: Manage your WooCommerce cart and checkout pages with the block editor.
+* High performance order storage (HPOS): Store your WooCommerce orders in their own database tables, to increase your store's performance.
+
+== Support ==
+
+[Documentation](https://woocommerce.com/document/woocommerce-gateway-affirm/)
+[Feature requests](https://woocommerce.com/feature-requests/woocommerce-gateway-affirm)
+[Get support](https://woocommerce.com/contact-us/)
+
+== Available Countries ==
+
+* United States
+* United Kingdom
+* Canada
+
+== Quality Checks ==
+
+[Known vulnerability check passed](https://qit.woo.com/docs/managed-tests/security?_gl=1*jgfu7h*_gcl_au*MTA5Mjc3MDExMC4xNzU0OTQzNjE0*_ga*MTA3NTI0NTU3LjE3NTQ5NDM2MTQ.*_ga_98K30SHWB2*czE3NTUwMTAyODEkbzIkZzEkdDE3NTUwMTYzMTIkajU5JGwwJGgw#what-do-the-audit-results-mean)
+[Dependent packages vulnerability check passed](https://qit.woo.com/docs/managed-tests/security?_gl=1*iv7yd4*_gcl_au*MTA5Mjc3MDExMC4xNzU0OTQzNjE0*_ga*MTA3NTI0NTU3LjE3NTQ5NDM2MTQ.*_ga_98K30SHWB2*czE3NTUwMTAyODEkbzIkZzEkdDE3NTUwMTYzMTIkajU5JGwwJGgw#what-do-the-audit-results-mean)
+[Follows Marketplace best practices](https://qit.woo.com/docs/managed-tests/validation?_gl=1*iv7yd4*_gcl_au*MTA5Mjc3MDExMC4xNzU0OTQzNjE0*_ga*MTA3NTI0NTU3LjE3NTQ5NDM2MTQ.*_ga_98K30SHWB2*czE3NTUwMTAyODEkbzIkZzEkdDE3NTUwMTYzMTIkajU5JGwwJGgw)
+
+== Requirements ==
+
+* Affirm works for merchants selling in the United States, United Kingdom, and Canada.
+* You will need an Affirm merchant account to implement financing.
+* SSL certificate

@@ -2293,6 +2293,12 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 			),
 		);
 
+		// Todo: when support for cross border transactions we will need to revisit this log
+		if (strtolower($affirm_data['currency']) === 'gbp') {
+			unset($affirm_data['shipping']['address']['region1_code']);
+			unset($affirm_data['billing']['address']['region1_code']);
+		}
+
 		/**
 		 * If for some reason shipping info is empty (e.g. shipping is disabled),
 		 * use billing address.
