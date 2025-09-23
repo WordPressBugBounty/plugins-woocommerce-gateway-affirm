@@ -154,7 +154,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	/**
 	 * show_learnmore
 	 *
-	 * Toggle to display learn more 
+	 * Toggle to display learn more
 	 *
 	 * @var string
 	 */
@@ -177,7 +177,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	 * @var string
 	 */
 	public $show_fee;
-	
+
 	/**
 	 * category_ala
 	 *
@@ -314,6 +314,22 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	 */
 	const AVAILABLE_COUNTRIES = array( 'US', 'AS', 'GU', 'MP', 'PR', 'VI', 'CA', 'GB' );
 
+
+	/**
+	 * Country-specific configuration for countries where MSS is not supported but Affirm is available
+	 * There are separate URL's for Business Form and Merchant Dashboard
+	 */
+	const MSS_NOT_SUPPORTED_BANNER_COUNTRY_CONFIG = array(
+		'GB' => array(
+			'dashboard_url' => 'https://uk.affirm.com/dashboard/',
+			'business_url' => 'http://info.affirm.com/woocommerce/uk'
+		),
+		'CA' => array(
+			'dashboard_url' => 'https://www.affirm.ca/dashboard/',
+			'business_url' => 'http://info.affirm.com/woocommerce/ca'
+		)
+	);
+
 	/**
 	 * Error tracker constants
 	 */
@@ -321,7 +337,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	const INTERNAL_SERVER_ERROR = 'INTERNAL_SERVER_ERROR';
 	const TRANSACTION_DECLINED = 'TRANSACTION_DECLINED';
 	const INVALID_AMOUNT = 'INVALID AMOUNT';
-	
+
 	// Max stack frames to send to endpoint
 	const MAX_STACK_FRAMES = 10;
 
@@ -415,7 +431,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 			'admin_enqueue_scripts',
 			array( $this, 'adminEnqueueScripts' )
 		);
-		
+
 		add_action(
 			'update_option_woocommerce_' . $this->id . '_settings',
 			array( $this, 'clearPollingOnManualKeyEntry' ),
@@ -696,7 +712,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 						$message
 					);
 				}
-				
+
 				wc_add_notice( $e->getMessage(), 'error' );
 				wp_safe_redirect( WC()->cart->get_checkout_url() );
 			}
@@ -958,7 +974,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 				"Info: Successfully voided {$charge_id} for order {$order_id}"
 			);
 
-			return true;	
+			return true;
 		} catch ( Exception $e ) {
 			$this->post_affirm_error_tracker(
 				'void',
@@ -1668,7 +1684,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		// We don't poll on CA and UK keys so we cannot disable if CA or UK keys are present
 		if ( !($ca_keys_present || $gb_keys_present) ) {
 			if (get_option('affirm_us_keys_status') === 'pending' || get_option('affirm_us_keys_status') === 'denied' ) {
-				return false;	
+				return false;
 			}
 		}
 
@@ -1757,7 +1773,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 				$this->log(
 					__FUNCTION__,
 					"Country not Supported, {$country}"
-				);	
+				);
 			}
 
 			$is_available = false;
@@ -2102,7 +2118,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		if ( ! is_numeric( $order_id ) ) {
 			return false;
 		}
-		
+
 		$order_id = absint( $order_id );
 
 		$order = wc_get_order( $order_id );
@@ -2709,7 +2725,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		if ( empty($us_public) && empty($us_private) && empty($ca_public) && empty($ca_private) && empty($gb_public) && empty($gb_private)  ) {
 			return true;
 		}
-		
+
 		if ( (isset($us_public) || isset($us_private)) && strlen($us_public) > 1 || strlen($us_private) > 1 ) {
 			if( empty($us_public) || empty($us_private) ) {
 				return true;
@@ -2783,7 +2799,9 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
                             <div class='affirm_child_img'>
                                 <img style='width:100%; display: inline-block' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_goodies.png' ) ?>' />
                             </div>
-							<?php if ( WC()->countries->get_base_country() === 'US' ) : ?>
+							<?php
+							$base_country = WC()->countries->get_base_country();
+							if ( $base_country === 'US' ) : ?>
 								<div class='affirm_child_l1'>
 									<p style='color:#ffffff; font-size:20px; padding-left:16px; font-weight:600'>Launch <img style='height:24px; display: inline-block' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_logo_white.png' ) ?>'/></p>
 									<div class='affirm_child'>
@@ -2797,20 +2815,34 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 										</p>
 									</div>
 								</div>
-							<?php else: ?>
+							<?php elseif ( array_key_exists( $base_country, self::MSS_NOT_SUPPORTED_BANNER_COUNTRY_CONFIG ) && isset( self::MSS_NOT_SUPPORTED_BANNER_COUNTRY_CONFIG[$base_country]['business_url'] ) ) : ?>
+								<?php
+								$config = self::MSS_NOT_SUPPORTED_BANNER_COUNTRY_CONFIG[$base_country];
+								$business_url = $config['business_url'];
+								?>
 								<div class='affirm_child_l1'>
 									<p style='color:#ffffff; font-size:20px; padding-left:16px; font-weight:600'>Launch <img style='height:24px; display: inline-block' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_logo_white.png' ) ?>'/> in just 2 steps</p>
 									<div class='affirm_child'>
 										<h2 style='color: #ffffff; font-weight:700'>1. Apply for Affirm</h2>
-										<p>If you haven’t already signed up for Affirm, you must first apply for a merchant account to receive your API keys.</p>
-										<a href='https://www.affirm.com/business/partners/woocommerce?utm_source=WooCommerce&utm_medium=partner&utm_campaign=woocommerce_product' target='_blank'><img style='display: inline-block; height: 30px' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_link_out.png' ) ?>' /></a>
+										<p>If you haven't already signed up for Affirm, you must first apply for a merchant account to receive your API keys.</p>
+										<a href='<?php echo esc_url($business_url); ?>' target='_blank'><img style='display: inline-block; height: 30px' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_link_out.png' ) ?>' /></a>
 									</div>
 									<div class='affirm_child'>
 										<h2 style='color: #ffffff; font-weight:700'>2. Enter your Affirm API keys</h2>
-										<p>Use the API keys found in your <a style='color: #FFCA61' href='https://www.affirm.com/dashboard/' target='_blank'>Affirm merchant dashboard</a>  for the plugin on the WooCommerce settings page.
+										<p>Use the API keys found in your <a style='color: #FFCA61' href='<?php echo esc_url($config['dashboard_url']); ?>' target='_blank'>Affirm merchant dashboard</a>  for the plugin on the WooCommerce settings page.
 										</p>
 										<br>
 										<a  href='/wp-admin/admin.php?page=wc-settings&tab=checkout&section=affirm'><img style='display: inline-block; height: 30px' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_enter_api_key.png' ) ?>' /></a>
+									</div>
+								</div>
+							<?php else : ?>
+								<?php
+								$business_url = 'https://www.affirm.com/business/partners/woocommerce?utm_source=WooCommerce&utm_medium=partner&utm_campaign=woocommerce_product';
+								?>
+								<div class='affirm_child_l1'>
+									<div class='affirm_child'>
+										<p>Affirm isn't available in your country yet. We still encourage you to apply so Affirm can reach out to you when your country is supported</p>
+										<a href='<?php echo esc_url($business_url); ?>' target='_blank'><img style='display: inline-block; height: 30px' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_link_out.png' ) ?>' /></a>
 									</div>
 								</div>
 							<?php endif; ?>
@@ -2826,7 +2858,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
                         }
 					</script>
 				<?php
-				$banner_displayed = true;		
+				$banner_displayed = true;
 			}
 		}
 	}
@@ -2893,7 +2925,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		} else {
 			$country_code = empty( $this->public_key ) ? self::CAN : self::USA;
 		}
-		
+
 		$options = array(
 			'method'  => 'POST',
 			'headers' => array(
@@ -3079,7 +3111,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	{
 		$body = json_decode($result['body']);
 
-		if (!isset($body->public_api_key, $body->private_api_key)) { 
+		if (!isset($body->public_api_key, $body->private_api_key)) {
 			return new WP_Error('Invalid credentials received from WooCommerce Connect server');
 		}
 

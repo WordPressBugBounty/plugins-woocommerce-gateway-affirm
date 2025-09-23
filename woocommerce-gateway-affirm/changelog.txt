@@ -1,4 +1,7 @@
 *** WooCommerce Gateway Affirm Changelog ***
+= 3.0.4 - 2025-9-23 =
+* Fix Signup Banner
+
 = 3.0.3 - 2025-8-14 =
 * Fix - Fix UK Checkout region
 
