@@ -320,6 +320,10 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	 * There are separate URL's for Business Form and Merchant Dashboard
 	 */
 	const MSS_NOT_SUPPORTED_BANNER_COUNTRY_CONFIG = array(
+		'US' => array(
+			'dashboard_url' => 'https://www.affirm.com/dashboard/',
+			'business_url' => 'https://www.affirm.com/business/partners/woocommerce?utm_source=WooCommerce&utm_medium=partner&utm_campaign=woocommerce_product'
+		),
 		'GB' => array(
 			'dashboard_url' => 'https://uk.affirm.com/dashboard/',
 			'business_url' => 'http://info.affirm.com/woocommerce/uk'
@@ -2801,21 +2805,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
                             </div>
 							<?php
 							$base_country = WC()->countries->get_base_country();
-							if ( $base_country === 'US' ) : ?>
-								<div class='affirm_child_l1'>
-									<p style='color:#ffffff; font-size:20px; padding-left:16px; font-weight:600'>Launch <img style='height:24px; display: inline-block' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_logo_white.png' ) ?>'/></p>
-									<div class='affirm_child'>
-										<h2 style='color: #ffffff; font-weight:700'>New to Affirm?</h2>
-										<p>Apply for a merchant account to get started. Once you submit your application, we will fetch your API keys and pull them into your plugin settings page. Please note that Affirm will not be enabled at checkout until your application has been approved.</p>
-										<a href='<?php echo $this->generate_oauth_init_url(); ?>' target='_blank'><img style='display: inline-block; height: 30px' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_link_out.png' ) ?>' /></a>
-									</div>
-									<div class='affirm_child'>
-										<h2 style='color: #ffffff; font-weight:700'>Already have an account?</h2>
-										<p>Log in to your <a style='color: #FFCA61' href='https://www.affirm.com/dashboard/' target='_blank'>Affirm merchant dashboard</a> to find your API keys. Fill in your API key details on the WooCommerce plugin <a style='color: #FFCA61' href='/wp-admin/admin.php?page=wc-settings&tab=checkout&section=affirm' target='_blank'>settings page</a> to enable Affirm at checkout.
-										</p>
-									</div>
-								</div>
-							<?php elseif ( array_key_exists( $base_country, self::MSS_NOT_SUPPORTED_BANNER_COUNTRY_CONFIG ) && isset( self::MSS_NOT_SUPPORTED_BANNER_COUNTRY_CONFIG[$base_country]['business_url'] ) ) : ?>
+							if ( array_key_exists( $base_country, self::MSS_NOT_SUPPORTED_BANNER_COUNTRY_CONFIG ) && isset( self::MSS_NOT_SUPPORTED_BANNER_COUNTRY_CONFIG[$base_country]['business_url'] ) ) : ?>
 								<?php
 								$config = self::MSS_NOT_SUPPORTED_BANNER_COUNTRY_CONFIG[$base_country];
 								$business_url = $config['business_url'];
