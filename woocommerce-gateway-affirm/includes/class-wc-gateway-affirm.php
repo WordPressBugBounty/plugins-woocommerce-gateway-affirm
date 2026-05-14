@@ -322,7 +322,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	const MSS_NOT_SUPPORTED_BANNER_COUNTRY_CONFIG = array(
 		'US' => array(
 			'dashboard_url' => 'https://www.affirm.com/dashboard/',
-			'business_url' => 'https://www.affirm.com/business/partners/woocommerce?utm_source=WooCommerce&utm_medium=partner&utm_campaign=woocommerce_product'
+			'business_url' => 'https://info.affirm.com/wooextension'
 		),
 		'GB' => array(
 			'dashboard_url' => 'https://uk.affirm.com/dashboard/',
@@ -3004,7 +3004,9 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 
 		$current_url = home_url(add_query_arg(array()));
 
-		$url_components = parse_url($current_url);
+		// Use wp_parse_url() instead of PHP's parse_url() for consistency with WordPress core
+		// and better handling of internationalized URLs
+		$url_components = wp_parse_url($current_url);
 
 		if (isset($url_components['query'])) {
 			parse_str($url_components['query'], $params);

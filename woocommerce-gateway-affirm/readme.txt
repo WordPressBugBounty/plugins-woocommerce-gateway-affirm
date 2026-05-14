@@ -1,7 +1,7 @@
 === WooCommerce Gateway Affirm ===
 Contributors: Affirm
 Tags: Buy now pay later, Payments, WooCommerce extensions
-Stable tag: 3.0.5
+Stable tag: 3.0.7
 Requires at least: 6.1
 Tested up to: 6.7.2
 Requires PHP: 7.4
@@ -20,12 +20,12 @@ Affirm Payments for WooCommerce: Buy now, pay later for your business—but smar
   <li>Download and install the Affirm Payments extension for WooCommerce.</li>
   <li>Submit your application for an Affirm merchant account.
     <ol>
-      <li><strong>US merchants</strong>: Head to your WooCommerce payment settings to apply.</li>
+      <li><strong>US merchants</strong>: Apply at <a href="https://info.affirm.com/wooextension">info.affirm.com/wooextension</a></li>
       <li><strong>UK merchants</strong>: Apply at <a href="https://info.affirm.com/woocommerce/uk">info.affirm.com/woocommerce/uk</a></li>
       <li><strong>Canada merchants</strong>: Apply at <a href="https://info.affirm.com/woocommerce/ca">info.affirm.com/woocommerce/ca</a>.</li>
     </ol>
   </li>
-  <li>Once your application is approved, you’ll receive a confirmation email from Affirm and your API keys will go live.</li>
+  <li>Once your application is approved, your Affirm API keys will be available in the Affirm merchant portal. You will need to enter your Affirm API keys in the WP-admin dashboard (WooCommerce > Settings > Payments > Affirm) to launch.</li>
 </ol>
 
 Fast-track your revenue goals and capture every possible sale by offering customers a smarter way to pay over time, with no hidden fees or surprises.

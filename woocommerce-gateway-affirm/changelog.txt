@@ -1,4 +1,11 @@
 *** WooCommerce Gateway Affirm Changelog ***
+= 3.0.7 - 2026-05-13 =
+* Fix - Resolve Node.js 22 compatibility with webpack build process
+
+= 3.0.6 - 2026-04-27 =
+* Fix - Address WooCommerce.org build validation errors
+* Update - Remove manual textdomain loading for WordPress 6.7+ compatibility
+
 = 3.0.5 - 2026-03-30 =
 * Update - Unified activation banner for US, CA, and GB regions
 

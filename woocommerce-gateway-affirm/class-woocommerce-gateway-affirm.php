@@ -236,17 +236,7 @@ class WooCommerce_Gateway_Affirm {
 
 		include_once dirname( __FILE__ ) . '/includes/class-wc-affirm-privacy.php';
 		include_once plugin_basename( 'includes/class-wc-gateway-affirm.php' );
-		load_plugin_textdomain(
-			'woocommerce-gateway-affirm',
-			false,
-			trailingslashit(
-				dirname(
-					plugin_basename( __FILE__ )
-				)
-			)
-		);
 		add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateway' ) );
-		$this->load_plugin_textdomain();
 	}
 
 
@@ -1149,6 +1139,7 @@ class WooCommerce_Gateway_Affirm {
 		<tr>
 			<td class="label affirm-fee">
 			<?php
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wc_help_tip() is a WooCommerce core function that sanitizes and escapes output internally, making additional escaping unnecessary and potentially breaking the HTML formatting
 				echo wc_help_tip(
 					'This is the portion of the captured amount ' .
 					'that represents the mertchant fee for the transaction.'
@@ -1591,17 +1582,6 @@ class WooCommerce_Gateway_Affirm {
 		}
 	}
 
-	/**
-	 * Load Localisation files.
-	 *
-	 */
-	public function load_plugin_textdomain() {
-		load_plugin_textdomain( 
-			'woocommerce-gateway-affirm', 
-			false, 
-			dirname( plugin_basename( __FILE__ ) ) . '/languages' 
-		);
-	}
 
 	/**
 	 * Get Post type by ID
