@@ -739,6 +739,11 @@ class WooCommerce_Gateway_Affirm {
 				'filter_visible_group_child',
 			)
 		);
+
+		if ( empty( $children ) ) {
+			return 0;
+		}
+
 		uasort( $children, array( $this, 'order_grouped_product_by_price' ) );
 
 		return reset( $children )->get_price();

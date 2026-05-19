@@ -1,4 +1,7 @@
 *** WooCommerce Gateway Affirm Changelog ***
+= 3.0.8 - 2026-05-15 =
+* Fix - Resolve fatal error on grouped products with no visible children
+
 = 3.0.7 - 2026-05-13 =
 * Fix - Resolve Node.js 22 compatibility with webpack build process
 
