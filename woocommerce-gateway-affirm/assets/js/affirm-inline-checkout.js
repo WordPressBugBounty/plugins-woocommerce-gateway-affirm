@@ -9,29 +9,32 @@ jQuery( document ).ready(
 		let affirmInitCheckout = true;
 
 		if (affirmInlineCheckout.affirmInlineEnabled) {
-			setTimeout(
-				function () {
-					if (affirmInlineCheckout.affirmSelected) {
-						getAffirmInlineCheckoutobject()
-					}
-				},
-				1000
-			)
-
 			var checkoutForm = $( 'form.checkout' );
-			checkoutForm.on(
-				'change',
-				function (e) {
+
+			// WooCommerce only fires `updated_checkout` on the body once its own
+			// update_order_review AJAX request has finished recalculating cart
+			// totals, including any fee added via woocommerce_cart_calculate_fees.
+			// Refreshing here, instead of racing a fixed setTimeout against that
+			// same AJAX request, guarantees the amount sent to Affirm always
+			// reflects the final, fee-inclusive cart total.
+			$( document.body ).on(
+				'updated_checkout',
+				function () {
 					if ($( '#payment_method_affirm' ).prop( 'checked' )) {
-						setTimeout(
-							function () {
-								getAffirmInlineCheckoutobject()
-							},
-							1000
-						);
+						getAffirmInlineCheckoutobject()
 					}
 				}
 			)
+
+			// Cover the initial page-load case the same way, instead of guessing
+			// with a fixed timer: force a recalculation and let the listener
+			// above pick up the result once it's actually settled. If a
+			// recalculation is already in flight (e.g. WooCommerce's own
+			// automatic init_checkout trigger), WooCommerce coalesces this into
+			// that same request rather than firing a second one.
+			if (affirmInlineCheckout.affirmSelected) {
+				$( document.body ).trigger( 'update_checkout' );
+			}
 
 			let checkoutObject
 			let checkoutFormData

@@ -1223,6 +1223,12 @@ class WooCommerce_Gateway_Affirm {
 		$customer = WC()->customer;
 		$cart     = WC()->cart;
 
+		// Ensure fees (e.g. from a merchant's processing-fee plugin hooked into
+		// woocommerce_cart_calculate_fees) are settled before we snapshot the
+		// total, so the amount we send Affirm always matches what the order
+		// will finalize to.
+		$cart->calculate_totals();
+
 		$total           = floor( strval( 100 * $cart->total ) );
 		$checkout_object = array(
 			'merchant'        => array(
