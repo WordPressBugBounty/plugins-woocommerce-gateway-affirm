@@ -2098,6 +2098,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 
 		if ( ! isset( $_GET['affirm'] )
 			|| ! isset( $_GET['order_id'] )
+			|| ! isset( $_GET['key'] )
 			|| ! isset( $_GET['nonce'] )
 		) {
 			return false;
@@ -2114,7 +2115,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	 * @return object
 	 */
 	private function validateOrderFromRequest() {
-		if ( empty( $_GET['order_id'] ) ) {
+		if ( empty( $_GET['order_id'] ) || empty( $_GET['key'] ) ) {
 			return false;
 		}
 
@@ -2128,6 +2129,17 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 		$order = wc_get_order( $order_id );
 
 		if ( ! $order ) {
+			return false;
+		}
+
+		$order_key = version_compare( WC_VERSION, '3.0', '<' ) ?
+			$order->order_key :
+			$order->get_order_key();
+
+		if ( ! hash_equals(
+			(string) $order_key,
+			(string) wc_clean( wp_unslash( $_GET['key'] ) )
+		) ) {
 			return false;
 		}
 
@@ -2756,8 +2768,11 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 	 *  @return boolean
 	 */
 	private function notValidCheckoutNonce($order_id, $nonce) {
-		$checkout_nonce =  $this->getOrderMeta($order_id, 'checkout_nonce');
-		return $checkout_nonce != $nonce;
+		$checkout_nonce = $this->getOrderMeta($order_id, 'checkout_nonce');
+		if ( empty( $checkout_nonce ) || empty( $nonce ) ) {
+			return true;
+		}
+		return ! hash_equals( (string) $checkout_nonce, (string) $nonce );
 	}
 
 	public function affirmBanner(){
@@ -2814,12 +2829,12 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 									<p style='color:#ffffff; font-size:20px; padding-left:16px; font-weight:600'>Launch <img style='height:24px; display: inline-block' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_logo_white.png' ) ?>'/> in just 2 steps</p>
 									<div class='affirm_child'>
 										<h2 style='color: #ffffff; font-weight:700'>1. Apply for Affirm</h2>
-										<p>If you haven't already signed up for Affirm, you must first apply for a merchant account to receive your API keys.</p>
+										<p style='color:#ffffff'>If you haven't already signed up for Affirm, you must first apply for a merchant account to receive your API keys.</p>
 										<a href='<?php echo esc_url($business_url); ?>' target='_blank'><img style='display: inline-block; height: 30px' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_link_out.png' ) ?>' /></a>
 									</div>
 									<div class='affirm_child'>
 										<h2 style='color: #ffffff; font-weight:700'>2. Enter your Affirm API keys</h2>
-										<p>Use the API keys found in your <a style='color: #FFCA61' href='<?php echo esc_url($config['dashboard_url']); ?>' target='_blank'>Affirm merchant dashboard</a>  for the plugin on the WooCommerce settings page.
+										<p style='color:#ffffff'>Use the API keys found in your <a style='color: #FFCA61' href='<?php echo esc_url($config['dashboard_url']); ?>' target='_blank'>Affirm merchant dashboard</a>  for the plugin on the WooCommerce settings page.
 										</p>
 										<br>
 										<a  href='/wp-admin/admin.php?page=wc-settings&tab=checkout&section=affirm'><img style='display: inline-block; height: 30px' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_enter_api_key.png' ) ?>' /></a>
@@ -2831,7 +2846,7 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 								?>
 								<div class='affirm_child_l1'>
 									<div class='affirm_child'>
-										<p>Affirm isn't available in your country yet. We still encourage you to apply so Affirm can reach out to you when your country is supported</p>
+										<p style='color:#ffffff'>Affirm isn't available in your country yet. We still encourage you to apply so Affirm can reach out to you when your country is supported</p>
 										<a href='<?php echo esc_url($business_url); ?>' target='_blank'><img style='display: inline-block; height: 30px' src='<?php echo esc_url( plugin_dir_url(__DIR__) . 'assets/images/affirm_link_out.png' ) ?>' /></a>
 									</div>
 								</div>
