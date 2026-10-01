@@ -461,7 +461,7 @@ class WooCommerce_Gateway_Affirm {
 
 			// Make sure order IDs are submitted.
 			if ( isset( $_REQUEST['id'] ) ) {
-				$order_ids = array_map( 'absint', $_REQUEST['id'] );
+				$order_ids = array_map( 'absint', wp_unslash( $_REQUEST['id'] ) );
 			}
 
 			$sendback = remove_query_arg(
@@ -512,7 +512,7 @@ class WooCommerce_Gateway_Affirm {
 				),
 				$sendback
 			);
-			wp_redirect( $sendback );
+			wp_safe_redirect( $sendback );
 			exit();
 
 		} // End if().
@@ -1483,7 +1483,7 @@ class WooCommerce_Gateway_Affirm {
 	 * @throws Exception When Auth amounts are not valid.
 	 */
 	public function ajax_capture_handler() {
-		$order_id = absint( wc_clean( wp_unslash( $_POST['order_id'] ) ) );
+		$order_id = isset( $_POST['order_id'] ) ? absint( wc_clean( wp_unslash( $_POST['order_id'] ) ) ) : 0;
 		$amount   = isset( $_POST['amount'] ) ? absint( wc_clean( wp_unslash( $_POST['amount'] ) ) ) : 0;
 
 		if ( ! $this->get_gateway()->partial_capture ) {

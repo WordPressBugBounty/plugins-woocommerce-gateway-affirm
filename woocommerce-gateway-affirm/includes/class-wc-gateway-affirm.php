@@ -499,10 +499,8 @@ class WC_Gateway_Affirm extends WC_Payment_Gateway {
 					)
 				);
 			}
-			// phpcs:ignore
 			$checkout_token = isset( $_POST['checkout_token'] ) ?
-				// phpcs:ignore
-				wc_clean( $_POST['checkout_token'] ) :
+				wc_clean( wp_unslash( $_POST['checkout_token'] ) ) :
 				'';
 			if ( empty( $checkout_token ) ) {
 				$this->log(

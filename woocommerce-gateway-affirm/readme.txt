@@ -1,16 +1,16 @@
 === WooCommerce Gateway Affirm ===
 Contributors: Affirm
 Tags: Buy now pay later, Payments, WooCommerce extensions
-Stable tag: 3.0.10
+Stable tag: 3.0.11
 Requires at least: 6.1
-Tested up to: 6.7.2
+Tested up to: 7.1
 Requires PHP: 7.4
 Requires WooCommerce at least: 8.0
 Tested WooCommerce up to: 9.7.1
 License: GPL-3.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Affirm Payments for WooCommerce: Buy now, pay later for your business—but smarter. Increase conversions and AOV by offering shoppers flexible payment plans from Affirm.
+Buy now, pay later for your business—but smarter. Increase conversions and AOV with flexible payment plans from Affirm.
 
 == Description ==
 
