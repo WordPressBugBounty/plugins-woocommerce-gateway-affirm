@@ -315,14 +315,17 @@ class WooCommerce_Gateway_Affirm {
 			return $actions;
 		}
 
+		// Legacy (post-based) order screens send `post`; HPOS screens send only `id`.
+		$raw_order_id = ! empty( $_REQUEST['post'] ) ? $_REQUEST['post'] : ( $_REQUEST['id'] ?? '' );
+
 		$order = wc_get_order(
 			wp_kses(
-				wp_unslash( $_REQUEST['post'] ? $_REQUEST['post'] : $_REQUEST['id']  ),
+				wp_unslash( $raw_order_id ),
 				array()
 			)
 		);
 
-		if ( ! $this->check_payment_method_and_auth_flag( $order ) ) {
+		if ( ! $order || ! $this->check_payment_method_and_auth_flag( $order ) ) {
 			return $actions;
 		}
 

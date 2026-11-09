@@ -1,4 +1,7 @@
 *** WooCommerce Gateway Affirm Changelog ***
+= 3.0.12 - 2026-11-06 =
+* Fix - Resolve PHP "Undefined array key" warning on WooCommerce order edit screens when High-Performance Order Storage (HPOS) is enabled
+
 = 3.0.11 - 2026-10-01 =
 * Fix - Resolve WordPress.org Plugin Check errors that blocked the WooCommerce.com release (hidden .nvmrc file, outdated "Tested up to" value)
 * Fix - Resolve Plugin Check warnings (readme short description length, DEVELOPER.md in release package, redirect and input handling)
